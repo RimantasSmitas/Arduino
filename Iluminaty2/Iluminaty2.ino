@@ -1,7 +1,5 @@
 
-int lumi1, lumi2, lumi3;
-int uv, photo1,photo2;
-int light;
+int lumi1, lumi2, lumi3, uv, photo1, photo2, light;
 
 int btn1 = 10; 
 int btn2 = 9;
@@ -27,10 +25,6 @@ void setup() {
   pinMode(btn1, INPUT);
   pinMode(btn2, INPUT);
   pinMode(btn3, INPUT);
-
-  attachInterrupt(btn1, saveValue1, RISING);
-  attachInterrupt(btn2, saveValue2, RISING);
-  attachInterrupt(btn3, saveValue3, RISING);
 
   pinMode(photoCel1, INPUT);
   pinMode(photoCel2, INPUT);
@@ -85,12 +79,6 @@ int getArrayAverage(){
 
 int LightReading(){
   int lightReading;
-/*  uv = analogRead(uvSensor);
-  photo1 = analogRead(photoCel1);
-  photo2 = analogRead(photoCel2);
-  lightReading = (photo1 + photo2)/2+uv;
-  return(lightReading); 
-*/
   updateArrayData();
   getArrayAverage();
   lightReading=(photo1+photo2)/2+uv;
@@ -112,22 +100,17 @@ void saveValue3(){
   }
 
 void loop() 
-{/*
+{
   if(digitalRead(btn1)==HIGH){
-  Serial.println("button 1 pressed");
-  lumi1 = LightReading();
+    saveValue1();
   }
   else{
   if(digitalRead(btn2)==HIGH){
-  Serial.println("button 2 pressed");
-  lumi2 = LightReading();
-  }
+  saveValue2();}
   else{
   if(digitalRead(btn3)==HIGH){
-  Serial.println("button 3 pressed");
-  lumi3 = LightReading();
-  }}}
-  */
+  saveValue3();}}}
+  
  Serial.print("UV");
  Serial.println(uv); 
  
