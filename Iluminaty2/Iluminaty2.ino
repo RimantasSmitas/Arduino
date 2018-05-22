@@ -129,7 +129,7 @@ void loop()
 
 void levelCheck(){
  light = LightReading();
- if (light<lumi1-50){
+ if (light<lumi1-25){
   //relay 1 is on
   Serial.println("led1");
   digitalWrite(relay1, HIGH);
@@ -138,14 +138,14 @@ void levelCheck(){
      digitalWrite(relay1, LOW);
     //relay one is off
     }
-    if (light<lumi2-50){
+    if (light<lumi2-25){
    // relay 2 is on
   Serial.println("led2");
   digitalWrite(relay2, HIGH);}
    else {
 //    relay 2 is off  
      digitalWrite(relay2, LOW);}
-    if (light<lumi3-50){
+    if (light<lumi3-25){
      // relay3 is on  
   Serial.println("led3");
    digitalWrite(relay3, HIGH);
