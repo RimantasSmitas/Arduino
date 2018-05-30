@@ -39,7 +39,7 @@ void setup() {
   digitalWrite(relay3, HIGH);
 
   initArrays();
-  }
+}
 
 void initArrays (){
   int i; 
@@ -106,8 +106,7 @@ void saveValue3(){
   lumi3 = LightReading();
   }
 
-void loop() 
-{
+void loop(){
  if(digitalRead(btn1)==HIGH){
     saveValue1();}
   
@@ -121,6 +120,7 @@ void loop()
  getArrayAverage(); 
  levelCheck();
  delay(1000); 
+
  /*
  Debug printing
  Serial.print("UV");
@@ -129,8 +129,7 @@ void loop()
  Serial.println(photo1); 
  Serial.print("photoCell 2 ");
  Serial.println(photo2); 
- */
-  
+ */ 
 }
 
 
