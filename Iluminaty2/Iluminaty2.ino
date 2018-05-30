@@ -1,17 +1,17 @@
 
 int lumi1, lumi2, lumi3, uv, photo1, photo2, light;
 
-int btn1 = 10; 
-int btn2 = 9;
-int btn3 = 8;
+int btn1 = 4; 
+int btn2 = 5;
+int btn3 = 6;
 
-int uvSensor =A2;
-int photoCel1 = A1;
-int photoCel2 = A0;
+int uvSensor =A3;
+int photoCel1 = A2;
+int photoCel2 = A1;
 
-int relay1 = 2;
-int relay2 = 3;
-int relay3 = 4;
+int relay1 = 10;
+int relay2 = 11;
+int relay3 = 12;
 
 int phArray [10];
 int phArray2 [10];
@@ -33,6 +33,10 @@ void setup() {
   pinMode(relay1, OUTPUT);
   pinMode(relay2, OUTPUT);
   pinMode(relay3, OUTPUT);
+  
+  digitalWrite(relay1, HIGH);
+  digitalWrite(relay2, HIGH);
+  digitalWrite(relay3, HIGH);
 
   initArrays();
   Serial.println("Arrays initialized ");
@@ -104,12 +108,12 @@ void loop()
   if(digitalRead(btn1)==HIGH){
     saveValue1();
   }
-  else{
+  
   if(digitalRead(btn2)==HIGH){
   saveValue2();}
-  else{
+  
   if(digitalRead(btn3)==HIGH){
-  saveValue3();}}}
+  saveValue3();}
   
  Serial.print("UV");
  Serial.println(uv); 
@@ -132,26 +136,26 @@ void levelCheck(){
  if (light<lumi1-25){
   //relay 1 is on
   Serial.println("led1");
-  digitalWrite(relay1, HIGH);
+  digitalWrite(relay1, LOW);
    }
   else {
-     digitalWrite(relay1, LOW);
+     digitalWrite(relay1, HIGH);
     //relay one is off
     }
     if (light<lumi2-25){
    // relay 2 is on
   Serial.println("led2");
-  digitalWrite(relay2, HIGH);}
+  digitalWrite(relay2, LOW);}
    else {
 //    relay 2 is off  
-     digitalWrite(relay2, LOW);}
+     digitalWrite(relay2, HIGH);}
     if (light<lumi3-25){
      // relay3 is on  
   Serial.println("led3");
-   digitalWrite(relay3, HIGH);
+   digitalWrite(relay3, LOW);
      }
      else{
       //relay is off
-     digitalWrite(relay3, LOW);}
+     digitalWrite(relay3, HIGH);}
      Serial.println(light); 
   }
