@@ -1,8 +1,8 @@
 #define SPEAKER 9
-int level;
-int delayTimer = 500;
+int level;            //level counter
+int delayTimer = 500; //delay duration variable in ms
 
-struct gamePadType {
+struct gamePadType {  //struct for storing pads
   int PinNrLed;
   int Frequency;
   int PinNrButton;
