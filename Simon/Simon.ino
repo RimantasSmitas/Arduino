@@ -1,5 +1,6 @@
 #define SPEAKER 9
 int level;
+int delayTimer = 500;
 
 struct gamePadType {
   int PinNrLed;
@@ -55,10 +56,10 @@ void TurnLighOff(gamePadType i) {
 
 //blinks and buzzez specific pad 
 void BlinkAndBuzz(gamePadType i) {
-  delay(500);
+  delay(delayTimer);
   tone(SPEAKER, i.Frequency);
   digitalWrite(i.PinNrLed, HIGH);
-  delay(500);
+  delay(delayTimer);
   noTone(SPEAKER);
   digitalWrite(i.PinNrLed, LOW);
 }
@@ -87,30 +88,29 @@ void PlayMemory(){
 }
 
 
+
 //This function loops through the array of levels and the set pads
 //Then waits for input for each level 
 //if the input is incorrect it starts over the program. 
-
-void WaitForInput(){
-    int input;
-    for(int x=0;x<level+1;){ 
-      input=numberOfColours; 
-      int comp = memoryArray[x];
-      while(input == numberOfColours){
-        for(int i=0; i<numberOfColours; i++){
-          if(digitalRead(GamePad[i].PinNrButton)==0){
-            while(digitalRead(GamePad[i].PinNrButton)==0){
-              PlaySoundOn(GamePad[i]);
-              TurnLighOn(GamePad[i]);
-              input = i;}
-            PlaySoundOff();
-            TurnLighOff(GamePad[i]);            
-            if(comp==input)
+void WaitForInput(){                    //Void wait for input 
+    int input;                        //
+    for(int x=0;x<level+1;){                //Loops through all levels
+      input=numberOfColours;                //Input is saved as number of colors because its 1 bigger than the maximum input 
+      while(input == numberOfColours){            // while input is unchanged   
+        for(int i=0; i<numberOfColours; i++){       //check all input one by one 
+          if(digitalRead(GamePad[i].PinNrButton)==0){   //If a button is pressed 
+            while(digitalRead(GamePad[i].PinNrButton)==0){  //while the button is pressed
+              PlaySoundOn(GamePad[i]);            //play sound
+              TurnLighOn(GamePad[i]);           //turn on light
+              input = i;}                 //change the input
+            PlaySoundOff();                 //turn off sound 
+            TurnLighOff(GamePad[i]);                  //turn off light
+            if(memoryArray[x]==input)           //if comparator = to input button  that was pressed 
               {
-              x++;             
+              x++;                            //level iterator counter is incrimented 
               }
-            else{
-               YouLost();
+            else{                     //else lossing lights are displayed level is set to zero and the program is returned 
+               YouLost();                 // to the main loop 
                level = 0;
                return;              
               }  
@@ -118,9 +118,10 @@ void WaitForInput(){
       }
      }
    }
-    level++; 
-    return;
+    level++;                        //if program loops through all the levels that means the user has pushed the right buttons
+    return;                         // and we must return to the main loop after we increase the level counter.
 }
+
 
 void loop() { 
  // testSoundWithLight();
