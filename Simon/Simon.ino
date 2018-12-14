@@ -144,7 +144,7 @@ void YouLost(){
   }
   for(int i = 0; i<level;i++){
     memoryArray[i]=5;
-  }
+  } 
   }
 
 
