@@ -12,7 +12,7 @@ void controls() {
   if (Connected) {
     if (digitalRead(SASPIN)) { 
       MainControls(SAS, HIGH);
-      setSASMode(SMSAS);   
+  ReadButtonsAndChangeState();   
     }
     else {
      MainControls(SAS, LOW);
@@ -40,17 +40,6 @@ void controls() {
       MainControls(BRAKES, HIGH);}
     else{
       MainControls(BRAKES, LOW);
-    }
-
-    if (digitalRead(MAPPIN)){
-      CPacket.Mode=2;
-     }
-    if (digitalRead(DOCKPIN)){
-      CPacket.Mode=1;
-      }
-    
-    if (digitalRead(STAGEVIEWPIN)){
-      CPacket.Mode=0;
     }
     
     CPacket.Throttle = constrain(map(analogRead(THROTTLEPIN),0,1024,-1000,1000),-1000, 1000);

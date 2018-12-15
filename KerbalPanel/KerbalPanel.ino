@@ -201,6 +201,11 @@ HandShakePacket HPacket;
 VesselData VData;
 ControlPacket CPacket;
 
+
+int addres = 0x20; //0100000 (7bit)  
+uint16_t dataReceive; //16bit data received
+uint16_t dataSend;  //16bit data sent
+
 void setup() {
   Serial.begin(38400);
   mydisplay.shutdown(0, false);  // turns on display
@@ -211,6 +216,10 @@ void setup() {
   lcd.backlight();//To Power ON the back light
   pwm.begin();
   pwm.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
+
+  dataSend = word(B00000000,B00000000); //turn every pin to input
+  pcf8575_write(dataSend); //turn the pcf8575 pins to input
+
 
   initLEDS();
   InitTxPackets();
