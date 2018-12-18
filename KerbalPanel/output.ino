@@ -23,6 +23,17 @@ void controls() {
     else{
       MainControls(RCS, LOW);
     }
+    if (digitalRead(STAGEPIN)){
+      MainControls(STAGE, HIGH);}
+    else{
+      MainControls(STAGE, LOW);
+    }
+    
+    if (digitalRead(ABORTPIN)){
+      MainControls(ABORT, HIGH);}
+    else{
+      MainControls(ABORT, LOW);
+    }
 
     if (digitalRead(GEARPIN)){
       MainControls(GEAR, HIGH);}
@@ -60,7 +71,9 @@ void controlsInit() {
   pinMode(MAPPIN, INPUT_PULLUP);
   pinMode(STAGEVIEWPIN, INPUT_PULLUP);
   pinMode(DOCKPIN, INPUT_PULLUP);
-
+  
+  pinMode(ABORTPIN, INPUT_PULLUP);
+  pinMode(STAGEPIN, INPUT_PULLUP);
   
 //  pinMode(CG1PIN, INPUT_PULLUP);
 

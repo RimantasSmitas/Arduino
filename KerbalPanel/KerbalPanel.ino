@@ -30,6 +30,9 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define STAGEVIEWPIN 28
 #define DOCKPIN 29
 
+#define STAGEPIN 43
+#define ABORTPIN 42
+
 
  
 
@@ -106,7 +109,7 @@ boolean Connected = false;
 
 byte caution = 0, warning = 0, id;
 
-LedControl mydisplay = LedControl(12,11,10, 2);
+LedControl mydisplay = LedControl(12,11,10, 3);
 struct VesselData
 {
     byte id;                //1
@@ -208,10 +211,12 @@ uint16_t dataSend;  //16bit data sent
 
 void setup() {
   Serial.begin(38400);
-  mydisplay.shutdown(0, false);  // turns on display
-  mydisplay.setIntensity(0, 5); // 15 = brightest
   mydisplay.shutdown(1, false);  // turns on display
   mydisplay.setIntensity(1, 5); // 15 = brightest
+  mydisplay.shutdown(2, false);  // turns on display
+  mydisplay.setIntensity(2, 5); // 15 = brightest
+  mydisplay.shutdown(0, false);  // turns on display
+  mydisplay.setIntensity(0, 5); // 15 = brightest
   lcd.begin(16,2);//Defining 16 columns and 2 rows of lcd display
   lcd.backlight();//To Power ON the back light
   pwm.begin();
@@ -220,7 +225,7 @@ void setup() {
   dataSend = word(B00000000,B00000000); //turn every pin to input
   pcf8575_write(dataSend); //turn the pcf8575 pins to input
 
-
+mydisplay.setColumn(0,1,(byte)1);
   initLEDS();
   InitTxPackets();
   controlsInit();

@@ -21,13 +21,13 @@ void Indicators() {
   //ledDisplay(1,VData.Alt);
   lcd.clear();//Clean the screen
   lcd.setCursor(0,0); 
-  lcd.print(VData.LiquidFuelTot);
+  lcd.print(VData.TAp);
   lcd.setCursor(0,1);
-  lcd.print(VData.LiquidFuel);
+  lcd.print(VData.MissionTime);
   
-  ledDisplay(1,VData.RAlt);
+  ledDisplay(2,VData.RAlt);
 //  digitalWrite(RCSLED,ControlStatus(AGRCS));
-  ledDisplay(0,VData.Alt);
+  ledDisplay(1,VData.Alt);
   //digitalWrite(CG1LED,ControlStatus(AGCustom01));
   displayAllServos();
 }
