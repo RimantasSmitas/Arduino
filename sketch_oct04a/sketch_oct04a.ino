@@ -7,57 +7,10 @@
 #define BUTTON2 12
 #define BUTTON3 11
 #define BUTTON4 10
-#define SPEAKER 9
-
-int numTones = 10;
-int tones[] = {261, 277, 294, 311, 330, 349, 370, 392, 415, 440};
-//            mid C  C#   D    D#   E    F    F#   G    G#   A
 
 int nrOfLightsOn = 0;
 
-struct gamePadType{
-  int PinNrLed;
-  int Frequency;
-  int PinNrButton;
-  };
- 
-gamePadType Yellow={0,440,10};
-gamePadType Green={1,392,11};
-gamePadType Red={2,349,12};
-gamePadType Blue={3,330 ,13};
-gamePadType GamePad[]={Yellow,Green,Red,Blue};
-
-void Play_Sound_On(gamePadType i){
-  
-  
-  }
-void SoundOn(gamePadType i){
-tone(SPEAKER, i.Frequency);
-} 
-
-void SoundOff(gamePadType i){
-noTone(SPEAKER);
-  }
-
-void TurnLighOn(gamePadType i){
-  digitalWrite(i.PinNrLed,HIGH);
-   } 
-
-void TurnLighOff(gamePadType i){
-   digitalWrite(i.PinNrLed,LOW);
-   } 
-
-void BlinkAndBuzz(gamePadType i){
-   delay(500);
-   tone(SPEAKER, i.Frequency);
-   digitalWrite(i.PinNrLed,HIGH);
-   delay(500);
-   noTone(SPEAKER);
-   digitalWrite(i.PinNrLed,LOW);  
-  }
-
 void setup() {
- 
   // put your setup code here, to run once:
   pinMode(YELLOW,OUTPUT);
   pinMode(GREEN,OUTPUT);
@@ -101,6 +54,7 @@ LightsOn();
 delay(500);
 LightsOff();
 delay(500);
+
 }
  
 void LightsOn(){
@@ -121,15 +75,7 @@ void Testfunction(){
   BilnkAll();
   BilnkAllSeries();
   delay(500);
-
-//Play the whole frequency
-/*    for (int i = 0; i < 20000; i++)
-  {
-    tone(SPEAKER, i);
-    delay(25);
-  }*/
-  noTone(SPEAKER);
-
+  
   delay(500);
 int i = 0;
 
@@ -157,56 +103,11 @@ int i = 0;
   }
   */
 }
-//When the button is pushed a coresponding light with tune is played.
-void testSoundWithLight()
-{
-  while (0==digitalRead(Yellow.PinNrButton))
-{
-  PlaySoundOn(Yellow);
-  TurnLighOn(Yellow);
-  }
 
-while (0==digitalRead(Green.PinNrButton))
-{
-  PlaySoundOn(Green);
-  TurnLighOn(Green);
-  }
-while (0==digitalRead(Red.PinNrButton))
-{
-  PlaySoundOn(Red);
-  TurnLighOn(Red);
-  }
- while (0==digitalRead(Blue.PinNrButton))
-{
-  PlaySoundOn(Blue);
-  TurnLighOn(Blue);
-  }
-
-  PlaySoundOff(Yellow);
-  TurnLighOff(Yellow);
-  PlaySoundOff(Green);
-  TurnLighOff(Green);
-  PlaySoundOff(Red);
-  TurnLighOff(Red);
-  PlaySoundOff(Blue);
-  TurnLighOff(Blue);
-
-  }
   
 
 void loop() {
-
-  BlinkAndBuzz(GamePad[random(0,4)]);
-
-
-
-// testSoundWithLight();
-/*while (1==digitalRead(Yellow.PinNrButton))
-{
-  
-  }
-*/
-/* delay(1000);
+  delay(1000);
   // put your main code here, to run repeatedly:
  if (0 == digitalRead(BUTTON1))
   {
@@ -230,12 +131,11 @@ void loop() {
   }
 if (nrOfLightsOn<1)
 {
-  delay(500);
 nrOfLightsOn=4;
   digitalWrite(YELLOW,HIGH);
   digitalWrite(GREEN,HIGH);
   digitalWrite(RED,HIGH);
   digitalWrite(BLUE,HIGH);
-  */
   
+}
 }

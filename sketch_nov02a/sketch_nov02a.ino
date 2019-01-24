@@ -41,7 +41,6 @@ void loop() {
   delay(10);
   temp = SerialBT.readStringUntil(terminator);
   newTemp = temp.toInt();
-  
   if((newTemp>=0)&(newTemp<=100)){
   Red = newTemp;  
   Serial.println(Red);}
@@ -55,7 +54,8 @@ void loop() {
   Blue = newTemp-200;  
   Serial.println(Blue);
    }
-  
-  showColors(Red,Green,Blue);
+   
+ showColors(Red,Green,Blue);
+   
  }
  //}
