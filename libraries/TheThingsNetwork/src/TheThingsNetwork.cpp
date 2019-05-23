@@ -357,12 +357,18 @@ void TheThingsNetwork::clearReadBuffer()
   }
 }
 
-size_t TheThingsNetwork::readLine(char *buffer, size_t size)
+size_t TheThingsNetwork::readLine(char *buffer, size_t size, uint8_t attempts)
 {
   size_t read = 0;
-  while (read == 0)
+  while (!read && attempts--)
   {
     read = modemStream->readBytesUntil('\n', buffer, size);
+  }
+  if (attempts<=0)
+  { // If attempts is activated return 0 and set RN state marker
+    this->needsHardReset = true; // Inform the application about the radio module is not responsive.
+    debugPrintLn("No response from RN module.");
+    return 0;
   }
   buffer[read - 1] = '\0'; // set \r to \0
   return read;
@@ -417,7 +423,7 @@ void TheThingsNetwork::reset(bool adr)
   size_t length = readResponse(SYS_TABLE, SYS_RESET, buffer, sizeof(buffer));
 
   autoBaud();
-  length = readResponse(SYS_TABLE, SYS_TABLE, SYS_GET_VER, buffer, sizeof(buffer));  
+  length = readResponse(SYS_TABLE, SYS_TABLE, SYS_GET_VER, buffer, sizeof(buffer));
 
   // buffer contains "RN2xx3[xx] x.x.x ...", splitting model from version
   char *model = strtok(buffer, " ");
@@ -436,6 +442,13 @@ void TheThingsNetwork::reset(bool adr)
     sendMacSet(MAC_ADR, "off");
   }
   this->adr = adr;
+  this->needsHardReset = false;
+}
+
+void TheThingsNetwork::resetHard(uint8_t resetPin){
+  digitalWrite(resetPin, LOW);
+  delay(1000);
+  digitalWrite(resetPin, HIGH);
 }
 
 void TheThingsNetwork::saveState()
@@ -659,6 +672,30 @@ void TheThingsNetwork::configureUS915(uint8_t fsb)
   sendMacSet(MAC_PWRIDX, TTN_PWRIDX_US915);
 }
 
+void TheThingsNetwork::configureAU915(uint8_t fsb)
+{
+  uint8_t ch;
+  uint8_t chLow = fsb > 0 ? (fsb - 1) * 8 : 0;
+  uint8_t chHigh = fsb > 0 ? chLow + 7 : 71;
+  uint8_t ch500 = fsb + 63;
+  for (ch = 0; ch < 72; ch++)
+  {
+    if (ch == ch500 || (ch <= chHigh && ch >= chLow))
+    {
+      sendChSet(MAC_CHANNEL_STATUS, ch, "on");
+      if (ch < 63)
+      {
+        sendChSet(MAC_CHANNEL_DRRANGE, ch, "0 3");
+      }
+    }
+    else
+    {
+      sendChSet(MAC_CHANNEL_STATUS, ch, "off");
+    }
+  }
+  sendMacSet(MAC_PWRIDX, TTN_PWRIDX_AU915);
+}
+
 void TheThingsNetwork::configureAS920_923()
 {
   /* RN2903AS 1.0.3rc9 defaults
@@ -749,6 +786,37 @@ void TheThingsNetwork::configureKR920_923()
   sendMacSet(MAC_PWRIDX, TTN_PWRIDX_KR920_923);
 }
 
+void TheThingsNetwork::configureIN865_867()
+{
+  sendMacSet(MAC_ADR, "off"); // TODO: remove when ADR is implemented for this plan
+  sendMacSet(MAC_RX2, "2 866550000"); // SF10
+
+  // Disable the three default LoRaWAN channels
+  sendChSet(MAC_CHANNEL_STATUS, 0, "off");
+  sendChSet(MAC_CHANNEL_STATUS, 1, "off");
+  sendChSet(MAC_CHANNEL_STATUS, 2, "off");
+
+  // Channel 3
+  sendChSet(MAC_CHANNEL_DCYCLE, 3, "299");
+  sendChSet(MAC_CHANNEL_FREQ, 3, "865062500");
+  sendChSet(MAC_CHANNEL_DRRANGE, 3, "0 5");
+  sendChSet(MAC_CHANNEL_STATUS, 3, "on");
+
+  // Channel 4
+  sendChSet(MAC_CHANNEL_DCYCLE, 4, "299");
+  sendChSet(MAC_CHANNEL_FREQ, 4, "865402500");
+  sendChSet(MAC_CHANNEL_DRRANGE, 4, "0 5");
+  sendChSet(MAC_CHANNEL_STATUS, 4, "on");
+
+  // Channel 5
+  sendChSet(MAC_CHANNEL_DCYCLE, 5, "299");
+  sendChSet(MAC_CHANNEL_FREQ, 5, "865985000");
+  sendChSet(MAC_CHANNEL_DRRANGE, 5, "0 5");
+  sendChSet(MAC_CHANNEL_STATUS, 5, "on");
+
+  sendMacSet(MAC_PWRIDX, TTN_PWRIDX_IN865_867);
+}
+
 void TheThingsNetwork::configureChannels(uint8_t fsb)
 {
   switch (fp)
@@ -759,6 +827,9 @@ void TheThingsNetwork::configureChannels(uint8_t fsb)
   case TTN_FP_US915:
     configureUS915(fsb);
     break;
+  case TTN_FP_AU915:
+    configureAU915(fsb);
+    break;
   case TTN_FP_AS920_923:
     configureAS920_923();
     break;
@@ -767,6 +838,9 @@ void TheThingsNetwork::configureChannels(uint8_t fsb)
     break;
   case TTN_FP_KR920_923:
     configureKR920_923();
+    break;
+  case TTN_FP_IN865_867:
+    configureIN865_867();
     break;
   default:
     debugPrintMessage(ERR_MESSAGE, ERR_INVALID_FP);
@@ -781,12 +855,14 @@ bool TheThingsNetwork::setSF(uint8_t sf)
   switch (fp)
   {
   case TTN_FP_EU868:
+  case TTN_FP_IN865_867:
   case TTN_FP_AS920_923:
   case TTN_FP_AS923_925:
   case TTN_FP_KR920_923:
     dr = 12 - sf;
     break;
   case TTN_FP_US915:
+  case TTN_FP_AU915:
     dr = 10 - sf;
     break;
   }
@@ -972,7 +1048,7 @@ void TheThingsNetwork::sleep(uint32_t mseconds)
 }
 
 void TheThingsNetwork::wake()
-{ 
+{
   autoBaud();
 }
 
@@ -988,7 +1064,7 @@ void TheThingsNetwork::linkCheck(uint16_t seconds)
   modemStream->write(buffer);
   modemStream->write(SEND_MSG);
   debugPrintLn(buffer);
-  waitForOk();  
+  waitForOk();
 }
 
 uint8_t TheThingsNetwork::getLinkCheckGateways()

@@ -6,7 +6,11 @@
 
 #include <Arduino.h>
 #include <Stream.h>
+#if defined(ARDUINO_ARCH_AVR) || defined(ARDUINO_ARCH_SAMD)
 #include <avr/pgmspace.h>
+#else
+#include <pgmspace.h>
+#endif
 
 #define TTN_DEFAULT_SF 7
 #define TTN_DEFAULT_FSB 2
@@ -14,9 +18,11 @@
 
 #define TTN_PWRIDX_EU868 "1"
 #define TTN_PWRIDX_US915 "5"
+#define TTN_PWRIDX_AU915 "5"
 #define TTN_PWRIDX_AS920_923 "1" // TODO: should be 0, but the current RN2903AS firmware doesn't accept that value (probably still using EU868: 1=14dBm)
 #define TTN_PWRIDX_AS923_925 "1" // TODO: should be 0
 #define TTN_PWRIDX_KR920_923 "1" // TODO: should be 0
+#define TTN_PWRIDX_IN865_867 "1" // TODO: should be 0
 
 #define TTN_BUFFER_SIZE 300
 
@@ -34,9 +40,11 @@ enum ttn_fp_t
 {
   TTN_FP_EU868,
   TTN_FP_US915,
+  TTN_FP_AU915,
   TTN_FP_AS920_923,
   TTN_FP_AS923_925,
-  TTN_FP_KR920_923
+  TTN_FP_KR920_923,
+  TTN_FP_IN865_867
 };
 
 class TheThingsNetwork
@@ -53,7 +61,7 @@ private:
   void (*messageCallback)(const uint8_t *payload, size_t size, port_t port);
 
   void clearReadBuffer();
-  size_t readLine(char *buffer, size_t size);
+  size_t readLine(char *buffer, size_t size, uint8_t attempts = 3);
   size_t readResponse(uint8_t prefixTable, uint8_t indexTable, uint8_t index, char *buffer, size_t size);
   size_t readResponse(uint8_t table, uint8_t index, char *buffer, size_t size);
 
@@ -63,9 +71,11 @@ private:
   void autoBaud();
   void configureEU868();
   void configureUS915(uint8_t fsb);
+  void configureAU915(uint8_t fsb);
   void configureAS920_923();
   void configureAS923_925();
   void configureKR920_923();
+  void configureIN865_867();
   void configureChannels(uint8_t fsb);
   bool setSF(uint8_t sf);
   bool waitForOk();
@@ -78,8 +88,11 @@ private:
   void sendGetValue(uint8_t table, uint8_t prefix, uint8_t index);
 
 public:
+  bool needsHardReset = false;
+
   TheThingsNetwork(Stream &modemStream, Stream &debugStream, ttn_fp_t fp, uint8_t sf = TTN_DEFAULT_SF, uint8_t fsb = TTN_DEFAULT_FSB);
   void reset(bool adr = true);
+  void resetHard(uint8_t resetPin);
   void showStatus();
   size_t getHardwareEui(char *buffer, size_t size);
   size_t getAppEui(char *buffer, size_t size);
@@ -96,7 +109,7 @@ public:
   void wake();
   void saveState();
   void linkCheck(uint16_t seconds);
-  uint8_t getLinkCheckGateways();  
+  uint8_t getLinkCheckGateways();
   uint8_t getLinkCheckMargin();
 };
 

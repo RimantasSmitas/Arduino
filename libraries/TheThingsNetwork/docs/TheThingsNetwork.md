@@ -28,6 +28,16 @@ void reset(bool adr);
 
 - `bool adr`: Enable/disable Adaptive Data Rate.
 
+## Method: `hardReset`
+
+Performs a hardware reset of the RN module. Input parameter is the pin which the reset pin from the module is connected to. This does clear saved state, e.g. provisioned keys.
+
+```c
+void hardReset(uint8_t resetPin);
+```
+
+- `uint8_t resetPin`: The output pin that is connected to the module's reset pin. The output pin should be configured as output and set to high by the user.
+
 ## Method: `getHardwareEui`
 
 Gets the unique hardware EUI, often used as the DevEUI.
@@ -115,7 +125,7 @@ Returns `true` or `false` depending on whether the activation was successful.
 
 Call the method with no arguments if the device's LoRa module comes with pre-flashed values.
 
-See the [ABP](https://github.com/TheThingsNetwork/arduino-device-lib/blob/master/examples/ABP/ABP.ino) example.
+See the [SendABP](https://github.com/TheThingsNetwork/arduino-device-lib/blob/master/examples/SendABP/SendABP.ino) example.
 
 ## Method: `sendBytes`
 
@@ -138,7 +148,7 @@ Returns a success or error code and logs the related error message:
 * `TTN_SUCCESSFUL_RECEIVE`: Successful transmission. Received \<N> bytes
 * `TTN_ERROR_UNEXPECTED_RESPONSE`: Unexpected response: \<Response>
 
-See the [Send](https://github.com/TheThingsNetwork/arduino-device-lib/blob/master/examples/Send/Send.ino) example.
+See the [SendOTAA](https://github.com/TheThingsNetwork/arduino-device-lib/blob/master/examples/SendOTAA/SendOTAA.ino) example.
 
 ## Method: `poll`
 
@@ -186,7 +196,7 @@ void wake();
 
 ## Method: `linkCheck`
 
-Sets the time interval for the link check process to be triggered.
+Sets the time interval for the link check process to be triggered. When the interval expires, the next uplink will include a Link Check Request MAC command. When using this method, it should be called after joining has completed.
 
 ```c
 void linkCheck(uint16_t seconds);
@@ -208,4 +218,12 @@ Gets the demodulation margin as received in the last Link Check Answer frame.
 
 ```c
 uint8_t getLinkCheckMargin();
+```
+
+## Method: `getVDD`
+
+Returns the voltage in millivolt (mV) measured by the RN2xxx LoRa module. It's for information only since we don't know how it's measured but looks like accurate.
+
+```c
+uint16_t getVDD();
 ```
