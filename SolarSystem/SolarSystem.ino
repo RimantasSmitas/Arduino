@@ -59,28 +59,22 @@ int PlanetHolders []= {90,180,70,50};
 
 uint8_t proximity_data = 0;
 
- char RecieveData;
+char RecieveData;
 void encode(){  
 Serial.println("Starting encoding");
 int i = 1;
 for (i; i <= Neptune; i++){
   for(int x = 0; x < NrOfPlanets;x++){
     if(i%Planets[x]==0){
-   // Serial.print("Planet");
-   // Serial.println(Planets[x]);
     bitt = 1;  
     bitt<<=x;
-  // Serial.print("bit");
-  // Serial.println(bitt,BIN); 
     ILikeToMoveIt[i]=ILikeToMoveIt[i]|bitt;}
     else{}
   }  
-//  Serial.println(i);
- // Serial.println(ILikeToMoveIt[i],BIN);
+}
+Serial.println("Encoding done");
 }
 
-Serial.println("Encoding done");
-  }
 
 
 // Returns a Julian date number from current day given 
@@ -257,7 +251,6 @@ void ChangeStepCount(int PlanetIndex,int NewSpeed){
 void decoder(int index){
   Serial.print("decoding");
   Serial.println(index,BIN);
-  
 byte MercuryByte=1;
 byte VenusByte = 2;
 byte EarthByte = 4;
@@ -267,26 +260,19 @@ byte SaturnByte =32;
 byte UranusByte =64;
 byte NeptuneByte=128;
 byte message = ILikeToMoveIt[index];
-
 if((message&MercuryByte)!=0)MovePlanet(0);
-
 if((message&VenusByte)!=0)MovePlanet(1);
-
 if((message&EarthByte)!=0)MovePlanet(2);
-
 if((message&MarsByte)!=0)MovePlanet(3);
-
 //Outer planets
+
 //Not used in the proof of concept
 if((message&JupiterByte)!=0){
   MovePlanet(4);}
-
 if((message&SaturnByte)!=0){
   MovePlanet(5);}
-
 if((message&UranusByte)!=0){
   MovePlanet(6);}
-
 if((message&NeptuneByte)!=0){
   MovePlanet(7);}
 }
