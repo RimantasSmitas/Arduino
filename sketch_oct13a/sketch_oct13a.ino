@@ -24,19 +24,15 @@ struct gamePadType{
 gamePadType Yellow={0,440,10};
 gamePadType Green={1,392,11};
 gamePadType Red={2,349,12};
-gamePadType Blue={3,330 ,13};
+gamePadType Blue={3,330,13};
 gamePadType GamePad[]={Yellow,Green,Red,Blue};
 
-void Play_Sound_On(gamePadType i){
-  
-  
-  }
-void SoundOn(gamePadType i){
-tone(SPEAKER, i.Frequency);
-} 
+void playSondOn(gamePadType i){
+  tone(SPEAKER, i.Frequency);
+  } 
 
-void SoundOff(gamePadType i){
-noTone(SPEAKER);
+void PlaySoundOff(gamePadType i){
+  noTone(SPEAKER);
   }
 
 void TurnLighOn(gamePadType i){
@@ -176,7 +172,7 @@ while (0==digitalRead(Red.PinNrButton))
   PlaySoundOn(Red);
   TurnLighOn(Red);
   }
- while (0==digitalRead(Blue.PinNrButton))
+while (0==digitalRead(Blue.PinNrButton))
 {
   PlaySoundOn(Blue);
   TurnLighOn(Blue);
@@ -196,11 +192,11 @@ while (0==digitalRead(Red.PinNrButton))
 
 void loop() {
 
-  BlinkAndBuzz(GamePad[random(0,4)]);
+ // BlinkAndBuzz(GamePad[random(0,4)]);
 
 
 
-// testSoundWithLight();
+testSoundWithLight();
 /*while (1==digitalRead(Yellow.PinNrButton))
 {
   
