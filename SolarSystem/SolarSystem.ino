@@ -6,10 +6,10 @@
 
 #define MOTOR_STEPS 200
 
-#define RPM1 1
-#define RPM2 1
-#define RPM3 1
-#define RPM4 1
+#define RPM1 5
+#define RPM2 5
+#define RPM3 5
+#define RPM4 5
 
 #define DIR 4
 #define STEP 5
@@ -318,8 +318,8 @@ void MoveAllPlanets(){
 
 void MovePlanet(int index){   
   digitalWrite(SLEEP,HIGH);
-  Serial.println("mOVEPlanet");
-    Serial.println(index);
+  //Serial.println("mOVEPlanet");
+  //  Serial.println(index);
     
     int i = index;
     switch(i){
@@ -328,8 +328,8 @@ void MovePlanet(int index){
             Steps[i]=Steps[i]+Speed[i];
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
             if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
-            Serial.println("Mercury");
-            digitalWrite(SLEEP,LOW);
+           // Serial.println("Mercury");
+          //  digitalWrite(SLEEP,LOW);
         break;
         case 1:
             MVenus.move(Speed[i]);
@@ -337,7 +337,7 @@ void MovePlanet(int index){
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
             if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             //  Serial.println("Venus");
-            digitalWrite(SLEEP,LOW);
+           // digitalWrite(SLEEP,LOW);
         break;
         case 2:
             MEarth.move(Speed[i]); 
@@ -345,7 +345,7 @@ void MovePlanet(int index){
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
             if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             // Serial.println("Earth");
-            digitalWrite(SLEEP,LOW);
+            //digitalWrite(SLEEP,LOW);
         break;
         case 3:
             MMars.move(Speed[i]);
@@ -353,7 +353,7 @@ void MovePlanet(int index){
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
             if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             // Serial.println("Mars");
-            digitalWrite(SLEEP,LOW);
+            //digitalWrite(SLEEP,LOW);
         break;
         case 4:
             /*
@@ -557,7 +557,7 @@ void CheckState(){
     
               case 'D':
               state=Date;
-              Serial.println("d");
+              Serial.println("Date");
               SDate = Serial.readStringUntil(terminator);
               YearMonthDay = SDate.toInt();
               Serial.println(YearMonthDay);
@@ -565,7 +565,7 @@ void CheckState(){
 
               case 'C':
               state=Calibrate;
-              Serial.println("c");
+              Serial.println("Calibration");
               break;        
         }    
     }   
@@ -591,6 +591,8 @@ void SpinState(){
      
      
 void DateState(){
+  
+    digitalWrite(SLEEP,HIGH);
     while(state == Date){
          int Year; 
          int Month;
