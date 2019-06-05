@@ -6,10 +6,10 @@
 
 #define MOTOR_STEPS 200
 
-#define RPM1 5
-#define RPM2 5
-#define RPM3 5
-#define RPM4 5
+#define RPM1 1
+#define RPM2 1
+#define RPM3 1
+#define RPM4 1
 
 #define DIR 4
 #define STEP 5
@@ -49,8 +49,10 @@ SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
 ///Here are all the steps of all planets counted
 int Steps[]={0,0,0,0,0,0,0,0};
-///default speed ////////
+///default speed //////////////////////////////////////
+int Delay=1;
 int Speed[]={1,1,1,1,1,1,1,1};
+///////////////////////////////////////////////////////
 
 byte ILikeToMoveIt[Neptune];
 int Planets[NrOfPlanets]= {Mercury,Venus,Earth,Mars};//,Jupiter,Saturn,Uranus,Neptune};
@@ -61,7 +63,7 @@ int PlanetHolders []= {90,180,70,50};
 uint8_t proximity_data = 0;
 
 char RecieveData;
-
+int YearMonthDay;
 void encode(){  
     Serial.println("Starting encoding");
     int i = 1;
@@ -108,15 +110,27 @@ int JD(int y, int m, int d){
 
 //The following functions uses the the julian date and produces keplerian elements for the inner planets 
 // it later forwards the elements to a coordinate estimation calculator 
+void keplerianSun(int d){
+    double N = 0.0;
+    double i = 0.0;
+    double w = 282.9404 + 4.70935 *0.0001 * d;
+    double a = 1.000000;
+    double e = 0.016709 - 1.151 *0.00000001 * d;
+    double M = 356.0470 + 0.9856002585 * d;
+
+    keplerianCalculator(2,N,i,w,a,e,M);
+}
+
+
 void keplerianMerc(int d){
     double N =  48.3313 + 3.24587 *0.0001 *d;
-    double i = 7.0047 + 5.00*0.0000001 * d;
+    double i = 7.0047 + 5.00 *0.0000001 * d;
     double w =  29.1241 + 1.01444*0.0001 * d;
-    double a = 0.387098  ;
+    double a = 0.387098;
     double e = 0.205635 + 5.59*0.000000001 * d;
     double M = 168.6562 + 4.0923344368 * d;
   
-    keplerianCalculator(0,N,i,w,a,e,M); 
+    keplerianCalculator(0,N,i,w,a,e,M);
 }
 
 void keplerianVen(int d){
@@ -139,50 +153,6 @@ void keplerianMars(int d){
     double M =  18.6021 + 0.5240207766 * d;
   
     keplerianCalculator(3,N,i,w,a,e,M); 
-}
-
-
-void keplerianCalculator(int index, double N, double i, double w, double a, double e, double M){
-    while (M < 0){
-        M = M+360;
-    }   
-    while (M > 360){
-        M = M-360;
-    }   
-    
-    double E=M + e*(180/3.14159) * sin(M) * ( 1.0 + e * cos(M) );
-
-    if (e>0.05){
-      double difference=1;
-      while (1){
-          double En = E - ( E - e*(180/3.14159) * sin(E) - M ) / ( 1 - e * cos(E) );
-          difference = (En-E);
-    if (abs(difference)<0.001)break;
-        E = En;
-      }
-    }
-
-    double xv =a * ( cos(E) - e );
-    double yv =a * ( sqrt(1.0 - e*e) * sin(E) );
-
-    double v = atan2( yv, xv );
-    double r = sqrt( xv*xv + yv*yv );
-    
-    double xh = r * ( cos(N) * cos(v+w) - sin(N) * sin(v+w) * cos(i) );
-    double yh = r * ( sin(N) * cos(v+w) + cos(N) * sin(v+w) * cos(i) );  
-
-    float angle = atan2(0-yh,0-xh);
-    angle = angle *180/3.14159;
-
-    Serial.println("xh");
-    Serial.println(xh);
-    Serial.println("yh");
-    Serial.println(yh);
-    Serial.println("angle");
-    Serial.println(angle);
-
-    MovePlanetToADegree(index, angle);
-
 }
 
 
@@ -248,8 +218,7 @@ void ChangeStepCount(int PlanetIndex,int NewSpeed){
 
 
 void decoder(int index){
-    Serial.print("decoding");
-    Serial.println(index,BIN);
+    
     byte MercuryByte=1;
     byte VenusByte = 2;
     byte EarthByte = 4;
@@ -348,48 +317,79 @@ void MoveAllPlanets(){
 
 
 void MovePlanet(int index){   
+  digitalWrite(SLEEP,HIGH);
+  Serial.println("mOVEPlanet");
+    Serial.println(index);
+    
     int i = index;
-    Serial.print(i);
     switch(i){
         case 0:
             MMercury.move(Speed[i]);
             Steps[i]=Steps[i]+Speed[i];
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
-            // Serial.println("Mercury");
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
+            Serial.println("Mercury");
+            digitalWrite(SLEEP,LOW);
         break;
         case 1:
             MVenus.move(Speed[i]);
             Steps[i]=Speed[i]+Speed[i];
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             //  Serial.println("Venus");
+            digitalWrite(SLEEP,LOW);
         break;
         case 2:
             MEarth.move(Speed[i]); 
             Steps[i]=Steps[i]+Speed[i];
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             // Serial.println("Earth");
+            digitalWrite(SLEEP,LOW);
         break;
         case 3:
             MMars.move(Speed[i]);
             Steps[i]=Steps[i]+Speed[i];   
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             // Serial.println("Mars");
+            digitalWrite(SLEEP,LOW);
         break;
         case 4:
-            // MJupiter.move(stepcount); 
-            //Steps[4]=Steps[4]+stepcount;
+            /*
+            MJupiter.move(Speed[i]); 
+            Steps[i]=Steps[i]+stepcount;
+            if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
+            digitalWrite(SLEEP,LOW);
+            */
         break;
         case 5:
-            // MSaturn.move(stepcount);
-            // Steps[5]=Steps[5]+stepcount;
+            /*
+            MSaturn.move(Speed[i]);
+            Steps[i]=Steps[i]+stepcount;
+            if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
+            digitalWrite(SLEEP,LOW);
+            */           
         break;
         case 6:
-            // MUranus.move(stepcount);
-            // Steps[6]=Steps[6]+stepcount;
+            /* 
+            MUranus.move(Speed[i]);
+            Steps[i]=Steps[i]+stepcount;
+            if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
+            digitalWrite(SLEEP,LOW);
+            */
         break;
         case 7:
-            // MNeptune.move(stepcount);
-            // Steps[7]=Steps[7]+stepcount;
+            /*  
+            MNeptune.move(Speed[i]);
+            Steps[i]=Steps[i]+stepcount;
+            if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
+            if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
+            digitalWrite(SLEEP,LOW);
+            */
         break;
         default:
             // nada
@@ -398,6 +398,7 @@ void MovePlanet(int index){
 }
 
 void MovePlanetToADegree(int index, double ang){
+   Serial.println("move to a degree");
     int Stepcount = Steps[index];
     double currentangle = Stepcount * 0.0234375;
     double newAngle; 
@@ -405,29 +406,105 @@ void MovePlanetToADegree(int index, double ang){
     if (ang > currentangle){
         if (ang - currentangle > 180){
             dif = ang - 180 -currentangle;
-            newAngle = -currentangle - dif;}
+            newAngle = -currentangle - dif;
+        }
         else {newAngle = ang- currentangle; }}
     else {if(currentangle-ang>180){
             dif = currentangle-180 -ang;    
-            newAngle =360-currentangle+dif;}
+            newAngle =360-currentangle+dif;
+         }
           else {newAngle = ang-currentangle;}
          }   
 
     Stepcount =newAngle/0.0234375;
     ChangeStepCount(index,Stepcount);
-    MovePlanet[index];
+    MovePlanet(index);
+    
+
+    Serial.println("StepCount");
+    Serial.println(Stepcount);
+    state=Stop;
 }
 
 
-void CheckState(){
+void keplerianCalculator(int index, double N, double i, double w, double a, double e, double M){
+    double x,y;
+    
+    while (M < 0){
+        M = M+360;
+    }   
+    while (M > 360){
+        M = M-360;
+    }   
+    
+    double E=M + e*(180/3.14159) * sin(M) * ( 1.0 + e * cos(M) );
+
+    if (e>0.05){
+      double difference=1;
+      while (1){
+          double En = E - ( E - e*(180/3.14159) * sin(E) - M ) / ( 1 - e * cos(E) );
+          difference = (En-E);
+    if (abs(difference)<0.001)break;
+        E = En;
+      }
+    }
+
+    double xv =a * ( cos(E) - e );
+    double yv =a * ( sqrt(1.0 - e*e) * sin(E) );
+
+    double v = atan2( yv, xv );
+    double r = sqrt( xv*xv + yv*yv );
+    
+    
+
+    //If calculating for earth the eaquasions are a bit different so we check for them first
+    if(index==2){
+    double lonsun= v+w;
+   
+    x = (r * cos(lonsun))*-1;
+    y = (r * sin(lonsun))*-1;
+    //Multiply the coordinates by -1 to get coordinates from the sun instead of the earh   
+    
+    }
+    else {
+      
+    x = r * ( cos(N) * cos(v+w) - sin(N) * sin(v+w) * cos(i) );
+    y = r * ( sin(N) * cos(v+w) + cos(N) * sin(v+w) * cos(i) );  
+      }
+
+
+    float angle = atan2(0-y,0-x);
+    angle = angle *180/3.14159;
+
+    
+    Serial.println("index");
+    Serial.println(index);
+    Serial.println("x");
+    Serial.println(x);
+    Serial.println("y");
+    Serial.println(y);
+    Serial.println("angle");
+    Serial.println(angle);
+
+    
+    MovePlanetToADegree(index, angle);
+  
+}
+
+/*
+void SerialEvent(){
+   String SDelay;
      if (Serial.available()>0) {
         RecieveData = Serial.read();
-        Serial.println(RecieveData);
+        //Serial.println(RecieveData);
         switch(RecieveData){
     
               case 'G':
               state=Spin;
               Serial.println("Spin");
+              SDelay = Serial.readStringUntil(terminator);
+              Delay = SDelay.toInt();
+              Serial.println(Delay);
               break;
    
               case 'S':
@@ -438,6 +515,52 @@ void CheckState(){
               case 'D':
               state=Date;
               Serial.println("d");
+              SDate = Serial.readStringUntil(terminator);
+              Date = SDate.toInt();
+              Serial.println(Date);
+
+              
+              break;
+
+              case 'C':
+              state=Calibrate;
+              Serial.println("c");
+              break;        
+        }    
+    }
+
+
+  
+}
+*/
+
+
+void CheckState(){
+     String SDelay,SDate;
+     if (Serial.available()>0) {
+        RecieveData = Serial.read();
+        //Serial.println(RecieveData);
+        switch(RecieveData){
+    
+              case 'G':
+              state=Spin;
+              Serial.println("Spin");
+              SDelay = Serial.readStringUntil(terminator);
+              Delay = SDelay.toInt();
+              Serial.println(Delay);
+              break;
+   
+              case 'S':
+              state=Stop;
+              Serial.println("Stop");
+              break;
+    
+              case 'D':
+              state=Date;
+              Serial.println("d");
+              SDate = Serial.readStringUntil(terminator);
+              YearMonthDay = SDate.toInt();
+              Serial.println(YearMonthDay);
               break;
 
               case 'C':
@@ -455,51 +578,40 @@ void CalibrateState(){
 
 
 void SpinState(){
-    int Delay=1;
+    digitalWrite(SLEEP,HIGH);
     for(int i = 0; i < Neptune+1; i++){    
         byte compare = ILikeToMoveIt[i];   
         if(compare!=0){
            decoder(i);
-           delay(Delay);
+           delay(Delay/10);
         }
-    if (Serial.available()>0) {
-        Serial.println("data recieved");
-        // delay(10);
-        String SDelay = Serial.readStringUntil(terminator);
-        Delay = SDelay.toInt();}
-        CheckState();
-   if(state!=Spin)break;
-  }     
-
+          CheckState();
+    }
 }
-
+     
+     
 void DateState(){
     while(state == Date){
          int Year; 
          int Month;
          int Day;
-         if (Serial.available()>0) {
-            String sDate = Serial.readStringUntil(terminator);
-            Serial.println("data recieved");
-            if(sDate=="S")state = Stop;
-            if(sDate=="G")state = Spin;
-            if(sDate=="C")state = Calibrate;
-            int Date = sDate.toInt();
-            Serial.println(Date);
-            Year = Date/10000;
-            Month = (Date - (Year*10000))/100;
-            Day = Date - (Year*10000) - (Month*100);
-            Serial.println(Year);
-            Serial.println(Month);
-            Serial.println(Day);
-            int J =JD(Year,Month,Day);
-            keplerianMerc(J); 
-        }
-    CheckState();     
+         Year = YearMonthDay/10000;
+         Month = (YearMonthDay - (Year*10000))/100;
+         Day = YearMonthDay - (Year*10000) - (Month*100);
+         Serial.println(Year);
+         Serial.println(Month);
+         Serial.println(Day);
+         int J =JD(Year,Month,Day);
+         keplerianMerc(J); 
+         keplerianVen(J);
+         keplerianSun(J);
+         keplerianMars(J);
+         CheckState();     
     }
 }
 
 void StopState(){
+ digitalWrite(SLEEP,LOW);
     CheckState();
 }
 
