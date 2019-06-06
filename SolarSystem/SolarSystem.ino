@@ -398,24 +398,35 @@ void MovePlanet(int index){
 }
 
 void MovePlanetToADegree(int index, double ang){
-   Serial.println("move to a degree");
+   //Serial.println("move to a degree");
+   Serial.println("cURRENT ANGLE");
     int Stepcount = Steps[index];
     double currentangle = Stepcount * 0.0234375;
+      if(currentangle<0){
+      currentangle = currentangle +360;
+    }
+    Serial.println(currentangle);
     double newAngle; 
     double dif;
+    ///If the angle is bigger than the current angle
     if (ang > currentangle){
         if (ang - currentangle > 180){
-            dif = ang - 180 -currentangle;
-            newAngle = -currentangle - dif;
+            dif = ang - currentangle;
+            newAngle = 360-dif;
+            newAngle =newAngle*(-1);
+   
         }
         else {newAngle = ang- currentangle; }}
+    //if the angle is smaller
     else {if(currentangle-ang>180){
             dif = currentangle-180 -ang;    
             newAngle =360-currentangle+dif;
          }
           else {newAngle = ang-currentangle;}
          }   
-
+    
+            Serial.println("MOVE");
+            Serial.println(newAngle);
     Stepcount =newAngle/0.0234375;
     ChangeStepCount(index,Stepcount);
     MovePlanet(index);
@@ -423,6 +434,8 @@ void MovePlanetToADegree(int index, double ang){
 
     Serial.println("StepCount");
     Serial.println(Stepcount);
+     Serial.println("cURRENT ANGLE");
+      Serial.println(Steps[index]*0.0234375);
     state=Stop;
 }
 
@@ -460,22 +473,23 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
     //If calculating for earth the eaquasions are a bit different so we check for them first
     if(index==2){
     double lonsun= v+w;
-   
     x = (r * cos(lonsun))*-1;
     y = (r * sin(lonsun))*-1;
     //Multiply the coordinates by -1 to get coordinates from the sun instead of the earh   
-    
     }
+    
     else {
-      
     x = r * ( cos(N) * cos(v+w) - sin(N) * sin(v+w) * cos(i) );
     y = r * ( sin(N) * cos(v+w) + cos(N) * sin(v+w) * cos(i) );  
-      }
+    }
 
 
     float angle = atan2(0-y,0-x);
     angle = angle *180/3.14159;
 
+    if(angle<0){
+      angle = angle +360;
+    }
     
     Serial.println("index");
     Serial.println(index);
