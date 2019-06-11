@@ -103,7 +103,6 @@ int JD(int y, int m, int d){
     //Serial.println(F);
     int JD = C+D+E+F-1524;
     return(JD);
-  
 }
   
 
@@ -333,7 +332,7 @@ void MovePlanet(int index){
         break;
         case 1:
             MVenus.move(Speed[i]);
-            Steps[i]=Speed[i]+Speed[i];
+            Steps[i]=Steps[i]+Speed[i];
             if(Steps[i]>15360)Steps[i]=Steps[i]-15360;
             if(Steps[i]<-15360)Steps[i]=Steps[i]+15360;
             //  Serial.println("Venus");
@@ -399,7 +398,7 @@ void MovePlanet(int index){
 
 void MovePlanetToADegree(int index, double ang){
    //Serial.println("move to a degree");
-   Serial.println("cURRENT ANGLE");
+   Serial.print("Current angle ");
     int Stepcount = Steps[index];
     double currentangle = Stepcount * 0.0234375;
       if(currentangle<0){
@@ -420,22 +419,24 @@ void MovePlanetToADegree(int index, double ang){
     //if the angle is smaller
     else {if(currentangle-ang>180){
             dif = currentangle-180 -ang;    
-            newAngle =360-currentangle+dif;
+            newAngle = 360-currentangle+dif;
          }
           else {newAngle = ang-currentangle;}
          }   
     
-            Serial.println("MOVE");
+            Serial.print("Need to move ");
             Serial.println(newAngle);
     Stepcount =newAngle/0.0234375;
     ChangeStepCount(index,Stepcount);
     MovePlanet(index);
     
 
-    Serial.println("StepCount");
+    Serial.print("Steps needed to ");
     Serial.println(Stepcount);
-     Serial.println("cURRENT ANGLE");
-      Serial.println(Steps[index]*0.0234375);
+    Serial.print("Current angle ");
+    if((Steps[index]*0.0234375)<0){Serial.println((Steps[index]*0.0234375)+360);}
+    else{
+    Serial.println((Steps[index]*0.0234375));}
     state=Stop;
 }
 
@@ -462,8 +463,8 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
       }
     }
 
-    double xv =a * ( cos(E) - e );
-    double yv =a * ( sqrt(1.0 - e*e) * sin(E) );
+    double xv = a * ( cos(E) - e );
+    double yv = a * ( sqrt(1.0 - e*e) * sin(E) );
 
     double v = atan2( yv, xv );
     double r = sqrt( xv*xv + yv*yv );
@@ -493,14 +494,13 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
     
     Serial.println("index");
     Serial.println(index);
-    Serial.println("x");
+    Serial.print("x ");
     Serial.println(x);
-    Serial.println("y");
+    Serial.print("y ");
     Serial.println(y);
-    Serial.println("angle");
+    Serial.print("New angle ");
     Serial.println(angle);
 
-    
     MovePlanetToADegree(index, angle);
   
 }
@@ -512,7 +512,6 @@ void SerialEvent(){
         RecieveData = Serial.read();
         //Serial.println(RecieveData);
         switch(RecieveData){
-    
               case 'G':
               state=Spin;
               Serial.println("Spin");
@@ -532,8 +531,6 @@ void SerialEvent(){
               SDate = Serial.readStringUntil(terminator);
               Date = SDate.toInt();
               Serial.println(Date);
-
-              
               break;
 
               case 'C':
@@ -542,9 +539,6 @@ void SerialEvent(){
               break;        
         }    
     }
-
-
-  
 }
 */
 
