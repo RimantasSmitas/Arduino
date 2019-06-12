@@ -427,9 +427,9 @@ void MovePlanetToADegree(int index, double ang){
             Serial.print("Need to move ");
             Serial.println(newAngle);
     Stepcount =newAngle/0.0234375;
-    ChangeStepCount(index,Stepcount);
+    ChangeStepCount(index,Stepcount);  //Change the step count to whats needed for the planet
     MovePlanet(index);
-    ChangeStepCount(index,1);
+    ChangeStepCount(index,1);     // Change it back to default 
     
 
     Serial.print("Steps needed to ");
@@ -588,7 +588,6 @@ void CalibrateState(){
 
 void SpinState(){
   
-    Serial.println("SOIN");
     digitalWrite(SLEEP,HIGH);
     for(int i = 0; i < Neptune+1; i++){    
         byte compare = ILikeToMoveIt[i];   
