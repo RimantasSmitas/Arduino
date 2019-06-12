@@ -429,6 +429,7 @@ void MovePlanetToADegree(int index, double ang){
     Stepcount =newAngle/0.0234375;
     ChangeStepCount(index,Stepcount);
     MovePlanet(index);
+    ChangeStepCount(index,1);
     
 
     Serial.print("Steps needed to ");
@@ -485,7 +486,7 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
     }
 
 
-    float angle = atan2(0-y,0-x);
+    float angle = atan2(y,x);
     angle = angle *180/3.14159;
 
     if(angle<0){
@@ -586,6 +587,8 @@ void CalibrateState(){
 
 
 void SpinState(){
+  
+    Serial.println("SOIN");
     digitalWrite(SLEEP,HIGH);
     for(int i = 0; i < Neptune+1; i++){    
         byte compare = ILikeToMoveIt[i];   
@@ -601,7 +604,6 @@ void SpinState(){
 void DateState(){
   
     digitalWrite(SLEEP,HIGH);
-    while(state == Date){
          int Year; 
          int Month;
          int Day;
@@ -616,13 +618,14 @@ void DateState(){
          keplerianVen(J);
          keplerianSun(J);
          keplerianMars(J);
-         CheckState();     
-    }
+         return; 
+    
 }
 
 void StopState(){
  digitalWrite(SLEEP,LOW);
-    CheckState();
+ return;
+    //CheckState();
 }
 
 void States(){
@@ -644,6 +647,7 @@ void States(){
 }
 
 void loop() {  
+ // Serial.println("loop");
      CheckState();
      States();
 }
