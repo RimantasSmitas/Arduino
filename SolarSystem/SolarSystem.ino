@@ -217,15 +217,14 @@ void ChangeStepCount(int PlanetIndex,int NewSpeed){
 
 
 void decoder(int index){
-    
     byte MercuryByte=1;
     byte VenusByte = 2;
     byte EarthByte = 4;
     byte MarsByte =  8;
-    byte JupiterByte=16;
-    byte SaturnByte =32;
-    byte UranusByte =64;
-    byte NeptuneByte=128;
+   // byte JupiterByte=16;
+   // byte SaturnByte =32;
+   // byte UranusByte =64;
+   // byte NeptuneByte=128;
     byte message = ILikeToMoveIt[index];
 //////////////////////////////////////////////////////////////////////////////////////    
     if((message&MercuryByte)!=0)MovePlanet(0);
@@ -233,7 +232,7 @@ void decoder(int index){
     if((message&EarthByte)!=0)MovePlanet(2);
     if((message&MarsByte)!=0)MovePlanet(3);
 ///////Outer planets//////////////////////////////////////////////////////////////////
-
+/*
   //Not used in the proof of concept
     if((message&JupiterByte)!=0){
       MovePlanet(4);}
@@ -243,6 +242,7 @@ void decoder(int index){
       MovePlanet(6);}
     if((message&NeptuneByte)!=0){
       MovePlanet(7);}
+*/
 }
 
 void MoveToStartPosition(int i){
@@ -257,18 +257,18 @@ void MoveToStartPosition(int i){
 void calibrate(){
     Serial.print("Calibration started");
     UpdateProximity();
-    for (int i = 0; i<1;i++){    ///change back to NrOfPlanets
+    for (int i = 0; i<NrOfPlanets;i++){    ///change back to NrOfPlanets
         ChangeStepCount(i,10);
     }
     delay(10); 
     UpdateProximity();
-    while(proximity_data>20){
+    while(proximity_data>45){
         MoveAllPlanets();
         delay(10);
         UpdateProximity();
     }
 
-    for (int i = 0; i<1;i++){     ///change back to NrOfPlanets
+    for (int i = 0; i<NrOfPlanets;i++){     ///change back to NrOfPlanets
         while(proximity_data<PlanetHolders[i]){  
             MovePlanet(i);
             delay(10); 
@@ -294,22 +294,25 @@ void calibrate(){
             UpdateProximity();  
             Serial.println(Steps[i]);
         }
-        Serial.println("Calibration for planet I is done");
+        Serial.print("Calibration for planet ");
+        Serial.print(i);
+        Serial.println("is done");
         Serial.print("One rotation is");
         Serial.println(Steps[i]);
         MoveToStartPosition(i);
         if(abs(Steps[i]-15360)>154){
-            Serial.println("The calibration function has discovored that there's more than 1% inaccuracy ");
+            Serial.println("The calibration function has discovored that there's more than 1% inaccuracy");
             Serial.println("please check that nothing is blocking the planet movers and everything is thightened as it should be"); 
         }
         Steps[i]= 0;  
     }
+    state=Stop;
 }
 
 
 void MoveAllPlanets(){
     for(int i = 0;i< NrOfPlanets;i++){
-        delay(10);
+        delay(5);
         MoveToStartPosition(i);
     }
 }
@@ -437,8 +440,8 @@ void MovePlanetToADegree(int index, double ang){
     Serial.print("Current angle ");
     if((Steps[index]*0.0234375)<0){Serial.println((Steps[index]*0.0234375)+360);}
     else{
-    Serial.println((Steps[index]*0.0234375));}
-    state=Stop;
+        Serial.println((Steps[index]*0.0234375));}
+        state=Stop;
 }
 
 
@@ -587,7 +590,6 @@ void CalibrateState(){
 
 
 void SpinState(){
-  
     digitalWrite(SLEEP,HIGH);
     for(int i = 0; i < Neptune+1; i++){    
         byte compare = ILikeToMoveIt[i];   
@@ -601,7 +603,6 @@ void SpinState(){
      
      
 void DateState(){
-  
     digitalWrite(SLEEP,HIGH);
          int Year; 
          int Month;
