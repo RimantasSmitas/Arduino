@@ -46,7 +46,7 @@ PlanetStates state = Stop;
 
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 
-
+int CSteps;
 ///Here are all the steps of all planets counted
 int Steps[]={0,0,0,0,0,0,0,0};
 ///default speed //////////////////////////////////////
@@ -58,7 +58,7 @@ byte ILikeToMoveIt[Neptune];
 int Planets[NrOfPlanets]= {Mercury,Venus,Earth,Mars};//,Jupiter,Saturn,Uranus,Neptune};
 byte bitt;
 
-int PlanetHolders []= {90,180,70,50};
+int PlanetHolders []= {170,180,70,50};
 
 uint8_t proximity_data = 0;
 
@@ -157,6 +157,7 @@ void keplerianMars(int d){
 
 void setup() {
     Serial.begin(9600);
+    Serial1.begin(9600);
     Serial.println("begin"); 
     encode();
 
@@ -271,40 +272,46 @@ void calibrate(){
     for (int i = 0; i<NrOfPlanets;i++){     ///change back to NrOfPlanets
         while(proximity_data<PlanetHolders[i]){  
             MovePlanet(i);
+           ; 
             delay(10); 
             UpdateProximity();  
         }
         ChangeStepCount(i,1);
         while(proximity_data>PlanetHolders[i]){   
             MovePlanet(i);
+           
             delay(10); 
             UpdateProximity();  
         }
-        Steps[i]=0;   
+        Steps[i]=0; 
+        CSteps=0;  
         ChangeStepCount(i,10);
         while(proximity_data<PlanetHolders[i]){
             MovePlanet(i);
+            CSteps=CSteps+10;
             delay(10); 
             UpdateProximity();  
         }
         ChangeStepCount(i,1);
         while(proximity_data>PlanetHolders[i]){   
             MovePlanet(i);
+            CSteps=CSteps+1;
             delay(10); 
             UpdateProximity();  
-            Serial.println(Steps[i]);
+            Serial.println(CSteps);
         }
-        Serial.print("Calibration for planet ");
-        Serial.print(i);
-        Serial.println("is done");
-        Serial.print("One rotation is");
-        Serial.println(Steps[i]);
+        Serial1.print("Calibration for planet ");
+        Serial1.print(i);
+        Serial1.println("is done");
+        Serial1.print("One rotation is");
+        Serial1.println(CSteps);
         MoveToStartPosition(i);
         if(abs(Steps[i]-15360)>154){
-            Serial.println("The calibration function has discovored that there's more than 1% inaccuracy");
-            Serial.println("please check that nothing is blocking the planet movers and everything is thightened as it should be"); 
+        Serial1.println("The calibration function has discovored that there's more than 1% inaccuracy");
+        Serial1.println("please check that nothing is blocking the planet movers and everything is thightened as it should be"); 
         }
         Steps[i]= 0;  
+        CSteps = 0;
     }
     state=Stop;
 }
@@ -509,56 +516,20 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
   
 }
 
-/*
-void SerialEvent(){
-   String SDelay;
-     if (Serial.available()>0) {
-        RecieveData = Serial.read();
-        //Serial.println(RecieveData);
-        switch(RecieveData){
-              case 'G':
-              state=Spin;
-              Serial.println("Spin");
-              SDelay = Serial.readStringUntil(terminator);
-              Delay = SDelay.toInt();
-              Serial.println(Delay);
-              break;
-   
-              case 'S':
-              state=Stop;
-              Serial.println("Stop");
-              break;
-    
-              case 'D':
-              state=Date;
-              Serial.println("d");
-              SDate = Serial.readStringUntil(terminator);
-              Date = SDate.toInt();
-              Serial.println(Date);
-              break;
-
-              case 'C':
-              state=Calibrate;
-              Serial.println("c");
-              break;        
-        }    
-    }
-}
-*/
-
-
 void CheckState(){
      String SDelay,SDate;
-     if (Serial.available()>0) {
-        RecieveData = Serial.read();
+     if (Serial1.available()>0) {
+        RecieveData = Serial1.read();
         //Serial.println(RecieveData);
         switch(RecieveData){
     
               case 'G':
               state=Spin;
               Serial.println("Spin");
-              SDelay = Serial.readStringUntil(terminator);
+              SDelay = Serial1.readStringUntil(terminator);
               Delay = SDelay.toInt();
+              Delay = map(Delay,0,100,100,0);
+              
               Serial.println(Delay);
               break;
    
@@ -570,7 +541,7 @@ void CheckState(){
               case 'D':
               state=Date;
               Serial.println("Date");
-              SDate = Serial.readStringUntil(terminator);
+              SDate = Serial1.readStringUntil(terminator);
               YearMonthDay = SDate.toInt();
               Serial.println(YearMonthDay);
               break;
