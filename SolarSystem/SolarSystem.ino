@@ -222,10 +222,10 @@ void decoder(int index){
     byte VenusByte = 2;
     byte EarthByte = 4;
     byte MarsByte =  8;
-   // byte JupiterByte=16;
-   // byte SaturnByte =32;
-   // byte UranusByte =64;
-   // byte NeptuneByte=128;
+ // byte JupiterByte=16;
+ // byte SaturnByte =32;
+ // byte UranusByte =64;
+ // byte NeptuneByte=128;
     byte message = ILikeToMoveIt[index];
 //////////////////////////////////////////////////////////////////////////////////////    
     if((message&MercuryByte)!=0)MovePlanet(0);
@@ -272,7 +272,6 @@ void calibrate(){
     for (int i = 0; i<NrOfPlanets;i++){     ///change back to NrOfPlanets
         while(proximity_data<PlanetHolders[i]){  
             MovePlanet(i);
-           ; 
             delay(10); 
             UpdateProximity();  
         }
@@ -480,8 +479,8 @@ void keplerianCalculator(int index, double N, double i, double w, double a, doub
     double v = atan2( yv, xv );
     double r = sqrt( xv*xv + yv*yv );
     
-    
 
+   
     //If calculating for earth the eaquasions are a bit different so we check for them first
     if(index==2){
     double lonsun= v+w;
